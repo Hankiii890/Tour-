@@ -1,6 +1,10 @@
 import os
 from sqlalchemy import create_engine, Column, String, Integer, Text, ForeignKey, Date, Float
 from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import engine
+
+Session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 if os.path.exists("travel_agency.db"):
     os.remove("travel_agency.db")
@@ -144,6 +148,14 @@ class TourHotel(Base):
 
     tour = relationship("Tour", back_populates="tourhotel_tour")
     hotel = relationship("Hotel", back_populates="tourhotel_tour")
+
+
+def get_db():
+    db = Session_local()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 # Создание всех таблиц в базе данных
